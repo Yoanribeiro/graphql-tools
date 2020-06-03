@@ -10,8 +10,25 @@ import {
   FragmentDefinitionNode,
   GraphQLObjectType,
   VariableDefinitionNode,
+  OperationTypeNode,
 } from 'graphql';
 import { Operation, Transform, Request, TypeMap, ExecutionResult } from '@graphql-tools/utils';
+
+export interface DelegationContext {
+  subschema: GraphQLSchema | SubschemaConfig;
+  targetSchema: GraphQLSchema;
+  operation: OperationTypeNode;
+  fieldName: string;
+  args: Record<string, any>;
+  context: Record<string, any>;
+  info: GraphQLResolveInfo;
+  returnType: GraphQLOutputType;
+  transforms: Array<Transform>;
+  transformedSchema: GraphQLSchema;
+  skipTypeMerging: boolean;
+}
+
+export type Binding = (delegationContext: DelegationContext) => Array<Transform>;
 
 export interface IDelegateToSchemaOptions<TContext = Record<string, any>, TArgs = Record<string, any>> {
   schema: GraphQLSchema | SubschemaConfig;
@@ -28,6 +45,7 @@ export interface IDelegateToSchemaOptions<TContext = Record<string, any>, TArgs 
   transformedSchema?: GraphQLSchema;
   skipValidation?: boolean;
   skipTypeMerging?: boolean;
+  binding?: Binding;
 }
 
 export interface IDelegateRequestOptions extends Omit<IDelegateToSchemaOptions, 'info'> {
